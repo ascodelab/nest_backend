@@ -1,0 +1,2 @@
+//1. Get Article list
+GET http://localhost:3000/article?page=0
