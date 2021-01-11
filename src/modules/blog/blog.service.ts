@@ -17,8 +17,9 @@ export class BlogService {
   public async getAllArticles(params: any): Promise<Record<string, any>> {
     //code for pagination
     const page: number = params.page || 0;
-    const from: number = page > 0 ? page * 9 : 0;
-    const to: number = page > 0 ? from + 8 : 100;
+    const recordsPerPage: number = parseInt(process.env.RECORDS_PER_PAGE);
+    const offset: number = page > 0 ? (page - 1) * recordsPerPage : 0;
+    console.log(offset)
     //code for filter by category/tag slug
     const type: string = (params.filter_type === undefined) ? 'category' : 'post_tag';
     //condition for filtering by category/subcategory/slug
@@ -29,7 +30,7 @@ export class BlogService {
     filter = await this.filterByCategoryAndTag(slug, type, filter, name);
     //sql query need to be executed
     const sql = `SELECT  p1.id, p1.post_date,p1.post_title,p1.post_content,p1.post_name,p1.post_modified,wm2.meta_value, u.user_nicename, u.display_name,u.user_email, t.name as terms_name,(SELECT group_concat(wp_terms.name separator ', ') FROM wp_terms
-    INNER JOIN wp_term_taxonomy on wp_terms.term_id = wp_term_taxonomy.term_id INNER JOIN wp_term_relationships wpr on wpr.term_taxonomy_id = wp_term_taxonomy.term_taxonomy_id WHERE taxonomy= 'category' and p1.id = wpr.object_id) AS "Categories",(SELECT group_concat(wp_terms.name separator ', ') FROM wp_terms INNER JOIN wp_term_taxonomy on wp_terms.term_id = wp_term_taxonomy.term_id INNER JOIN wp_term_relationships wpr on wpr.term_taxonomy_id = wp_term_taxonomy.term_taxonomy_id WHERE taxonomy= 'post_tag' and p1.id = wpr.object_id) AS "Tags" FROM wp_posts p1 LEFT JOIN wp_postmeta wm1 ON ( wm1.post_id = p1.id AND wm1.meta_value IS NOT NULL AND wm1.meta_key = '_thumbnail_id' ) LEFT JOIN wp_postmeta wm2 ON ( wm1.meta_value = wm2.post_id AND wm2.meta_key = '_wp_attached_file' AND wm2.meta_value IS NOT NULL ) LEFT JOIN wp_term_relationships rel ON rel.object_id = p1.ID LEFT JOIN wp_term_taxonomy tax ON ( tax.term_taxonomy_id = rel.term_taxonomy_id AND tax.taxonomy = '${type}' ) INNER JOIN wp_terms t ON (t.term_id = tax.term_id) LEFT JOIN wp_users u ON u.ID =  p1.post_author WHERE p1.post_status = 'publish' AND p1.post_type = 'post' ${filter}  group by  p1.id ORDER BY p1.post_date DESC LIMIT ${from}, ${to}`;
+    INNER JOIN wp_term_taxonomy on wp_terms.term_id = wp_term_taxonomy.term_id INNER JOIN wp_term_relationships wpr on wpr.term_taxonomy_id = wp_term_taxonomy.term_taxonomy_id WHERE taxonomy= 'category' and p1.id = wpr.object_id) AS "Categories",(SELECT group_concat(wp_terms.name separator ', ') FROM wp_terms INNER JOIN wp_term_taxonomy on wp_terms.term_id = wp_term_taxonomy.term_id INNER JOIN wp_term_relationships wpr on wpr.term_taxonomy_id = wp_term_taxonomy.term_taxonomy_id WHERE taxonomy= 'post_tag' and p1.id = wpr.object_id) AS "Tags" FROM wp_posts p1 LEFT JOIN wp_postmeta wm1 ON ( wm1.post_id = p1.id AND wm1.meta_value IS NOT NULL AND wm1.meta_key = '_thumbnail_id' ) LEFT JOIN wp_postmeta wm2 ON ( wm1.meta_value = wm2.post_id AND wm2.meta_key = '_wp_attached_file' AND wm2.meta_value IS NOT NULL ) LEFT JOIN wp_term_relationships rel ON rel.object_id = p1.ID LEFT JOIN wp_term_taxonomy tax ON ( tax.term_taxonomy_id = rel.term_taxonomy_id AND tax.taxonomy = '${type}' ) INNER JOIN wp_terms t ON (t.term_id = tax.term_id) LEFT JOIN wp_users u ON u.ID =  p1.post_author WHERE p1.post_status = 'publish' AND p1.post_type = 'post' ${filter}  group by  p1.id ORDER BY p1.post_date DESC LIMIT ${offset}, ${recordsPerPage}`;
 
     //fetch and return the response
     //return this.helper.formatArticleList(result);
