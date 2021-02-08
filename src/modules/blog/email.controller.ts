@@ -20,7 +20,7 @@ export class EmailController {
         const subject = req.body.subject || `Hello ✔ from ${req.body.name}`;
         const email = req.body.email || 'anela.kumar@gmail.com';
         const phone = req.body.phone || '+91 8860327209';
-        const message = req.body.phone || 'HoLLa!!';
+        const message = req.body.message || 'HoLLa!!';
 
         let data = {
             from: `${name} <${email}>`,
