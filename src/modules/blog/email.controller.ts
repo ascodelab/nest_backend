@@ -1,4 +1,4 @@
-import { Controller, Req, Get } from '@nestjs/common';
+import { Controller, Req, Get, Post } from '@nestjs/common';
 import { Request } from 'express';
 import { BlogService } from './blog.service';
 import { EmailService } from './email.service';
@@ -13,14 +13,14 @@ export class EmailController {
      * Usage : Get all articles
      * Description : shows article list
      */
-    @Get('/contact')
+    @Post('/contact')
     async getArticles(@Req() req: Request) {
 
-        const name = req.query.name || 'Anil Sharma';
-        const subject = req.query.subject || 'Hello ✔ from Ani!';
-        const email = req.query.email || 'anela.kumar@gmail.com';
-        const phone = req.query.phone || '+91 8860327209';
-        const message = req.query.phone || 'HoLLa!!';
+        const name = req.body.name || 'Anil Sharma';
+        const subject = req.body.subject || `Hello ✔ from ${req.body.name}`;
+        const email = req.body.email || 'anela.kumar@gmail.com';
+        const phone = req.body.phone || '+91 8860327209';
+        const message = req.body.phone || 'HoLLa!!';
 
         let data = {
             from: `${name} <${email}>`,
